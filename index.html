@@ -218,6 +218,7 @@
 
         function moveButton(e) {
             hasHoveredNo = true; // Unlock the Yes button
+            noBtn.style.position = 'unfixed';
             
             if(e) e.preventDefault(); // Prevent touch from firing a click
 
@@ -247,6 +248,7 @@
             // Add rotation
             const randomRotate = Math.random() * 30 - 10;
             noBtn.style.transform = `rotate(${randomRotate}deg)`;
+            noBtn.style.position = 'fixed';
         }
 
         // Add Event Listeners
