@@ -54,6 +54,17 @@
             100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
         }
 
+        /* Shake Animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
         /* Main Card */
         .container {
             position: relative;
@@ -141,7 +152,8 @@
             box-shadow: 0 5px 15px rgba(255, 77, 109, 0.4);
             z-index: 10;
         }
-        .btn-yes:hover { transform: scale(1.05); background: #ff3355; }
+        /* Only hover scale if not shaking */
+        .btn-yes:not(.shake):hover { transform: scale(1.05); background: #ff3355; }
 
         .btn-no {
             background: #e0e0e0;
@@ -198,13 +210,15 @@
     </div>
 
     <script>
-        var globalVar = 0;
+        var hasHoveredNo = false; // Using a clearer variable name
         const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.querySelector('.btn-yes');
         const questionScreen = document.getElementById('question-screen');
         const successScreen = document.getElementById('success-screen');
 
         function moveButton(e) {
-            globalVar = 1;
+            hasHoveredNo = true; // Unlock the Yes button
+            
             if(e) e.preventDefault(); // Prevent touch from firing a click
 
             // FIX: Handle the first transition smoothly
@@ -240,11 +254,19 @@
         noBtn.addEventListener('touchstart', moveButton);
 
         function handleYes() {
-            if (globalVar == 1)
-            {
+            // Check if user has interacted with No button yet
+            if (hasHoveredNo) {
                 questionScreen.style.display = 'none';
                 successScreen.style.display = 'block';
                 createConfetti();
+            } else {
+                // If locked, SHAKE the button
+                yesBtn.classList.add('shake');
+                
+                // Remove the class after animation ends so it can shake again
+                setTimeout(() => {
+                    yesBtn.classList.remove('shake');
+                }, 500);
             }
         }
 
@@ -256,10 +278,16 @@
                 
                 confetti.style.position = 'fixed';
                 confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.top = '-5vh';
+                confetti.style.top = '-10vh';
                 confetti.style.fontSize = Math.random() * 20 + 15 + 'px';
                 confetti.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
                 confetti.style.zIndex = '100';
+
+                // Remove the confetti element after animation finishes
+                confetti.addEventListener('animationend', function() {
+                    confetti.remove();
+                });
+
                 document.body.appendChild(confetti);
             }
         }
